@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native Prototype V 3.0 - Attendance System</title>
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-hover: #047857;
+            --bg-main: #f1f5f9;
+            --sidebar-bg: #064e3b;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #6ee7b7;
+            margin-bottom: 30px;
+        }
+
+        .menu-section {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #a7f3d0;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            color: #d1fae5;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: var(--card-bg);
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 20px;
+            color: var(--text-main);
+        }
+
+        .version-tag {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .content-body {
+            padding: 32px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        /* Module Switcher */
+        .module-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .module-card {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .module-card:hover, .module-card.selected {
+            border-color: var(--primary);
+            background: #ecfdf5;
+        }
+
+        .module-card h4 {
+            font-size: 15px;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .module-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Stats & Controls */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-box h2 {
+            font-size: 24px;
+            margin-top: 5px;
+        }
+
+        /* Tables & Forms */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+
+        .btn:hover { opacity: 0.9; }
+
+        .form-control {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            flex: 1;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        .progress-bar-bg {
+            background: #e2e8f0;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar-fill {
+            background: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-title">
+            <span>🌿 Native Proto V 3.0</span>
+        </div>
+
+        <div class="menu-section">Tabiiy Prototiplar</div>
+        <div class="menu-item active" onclick="switchSection('modules', this)">1. Prototip Modullari (V3.0)</div>
+        <div class="menu-item" onclick="switchSection('architecture', this)">2. Tizim Arxitekturasi</div>
+        <div class="menu-item" onclick="switchSection('evaluation', this)">3. Sinov va Baholash</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <h1 id="page-title">Tabiiy prototipni yaratish V 3.0</h1>
+            <span class="version-tag">PROTOTYPE V 3.0 NATIVE</span>
+        </div>
+
+        <div class="content-body">
+
+            <!-- 1. MODULES SECTION -->
+            <div id="modules" class="section active">
+                <div class="card">
+                    <h3>Dasturga yaqin ishlaydigan prototip variantini tanlang</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+                        V 3.0 versiyasida haqiqiy dasturiy ta'minot funksionalligiga ega bo'lgan 3 ta tabiiy modul ishlab chiqildi:
+                    </p>
+
+                    <!-- Module Selection Cards -->
+                    <div class="module-selector">
+                        <div class="module-card selected" onclick="selectModule('1', this)">
+                            <h4>Variant 1: Interaktiv Davomat Moduli</h4>
+                            <p>Real vaqt rejimida talabalarni belgilash va statistikani hisoblash.</p>
+                        </div>
+                        <div class="module-card" onclick="selectModule('2', this)">
+                            <h4>Variant 2: Analitika va Foizlar Moduli</h4>
+                            <p>Davomat foizi va grafik progress paneli ko'rinishida tahlil qilish.</p>
+                        </div>
+                        <div class="module-card" onclick="selectModule('3', this)">
+                            <h4>Variant 3: Guruh va Eksport Moduli</h4>
+                            <p>Guruhlar bo'yicha saralash va ma'lumotlarni boshqarish.</p>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Render View -->
+                    <div id="moduleViewContainer">
+                        <!-- JS renders active module view here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ARCHITECTURE SECTION -->
+            <div id="architecture" class="section">
+                <div class="card">
+                    <h3>V 3.0 Tabiiy prototipining texnik arxitekturasi</h3>
+                    <p style="color: var(--text-muted); line-height: 1.6;">
+                        Ushbu V 3.0 prototipi haqiqiy production dasturiy ta'minotga eng yaqin variant hisoblanadi. U quyidagi xususiyatlarni o'z ichiga oladi:
+                    </p>
+                    <ul style="margin-top: 15px; margin-left: 20px; color: var(--text-muted); line-height: 1.8;">
+                        <li><b>State Management:</b> Ma'lumotlar holatini lokal xotirada dinamik saqlash.</li>
+                        <li><b>Real-time Calculation:</b> Har bir harakatdan so'ng darhol qayta hisoblanadigan analitika.</li>
+                        <li><b>High-Fidelity UI:</b> Tayyor mahsulot darajasidagi zamonaviy va sezgir interfeys.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. EVALUATION SECTION -->
+            <div id="evaluation" class="section">
+                <div class="card">
+                    <h3>Sinov va baholash xulosasi</h3>
+                    <p style="color: var(--text-muted); line-height: 1.6;">
+                        V 3.0 tabiiy prototipi sinovdan o'tkazildi. Natijada foydalanuvchilar real dastur kabi ishlaydigan Variant 1 va Variant 2 modullarini eng samarali deb topishdi.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentModule = '1';
+        let students = [
+            { id: 1, name: "Aliyev Sardor", group: "IT-101", status: "Belgilanmagan" },
+            { id: 2, name: "Karimova Madina", group: "IT-101", status: "Belgilanmagan" },
+            { id: 3, name: "Toshpulotov Nodir", group: "IT-102", status: "Belgilanmagan" }
+        ];
+
+        function switchSection(sectionId, element) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            element.classList.add('active');
+
+            const titles = {
+                'modules': 'Tabiiy prototip modullari V 3.0',
+                'architecture': 'V 3.0 Texnik arxitekturasi',
+                'evaluation': 'Sinov natijalari va baholash'
+            };
+            document.getElementById('page-title').textContent = titles[sectionId];
+        }
+
+        function selectModule(modNum, element) {
+            currentModule = modNum;
+            document.querySelectorAll('.module-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            renderModuleView();
+        }
+
+        function renderModuleView() {
+            const container = document.getElementById("moduleViewContainer");
+            container.innerHTML = "";
+
+            const total = students.length;
+            const present = students.filter(s => s.status === 'Kelgan').length;
+            const absent = students.filter(s => s.status === 'Kelmagan').length;
+            const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+
+            if (currentModule === '1') {
+                // Variant 1: Interactive Attendance View
+                container.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-box">Jami talabalar: <h2>${total}</h2></div>
+                        <div class="stat-box" style="color:var(--success)">Kelganlar: <h2>${present}</h2></div>
+                        <div class="stat-box" style="color:var(--danger)">Kelmaganlar: <h2>${absent}</h2></div>
+                    </div>
+                    <div class="form-control">
+                        <input type="text" id="stuInput" placeholder="Yangi talaba ismi...">
+                        <button class="btn btn-primary" onclick="addStudent()">Qo'shish</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>№</th><th>F.I.Sh</th><th>Guruh</th><th>Holati</th><th>Harakat</th></tr>
+                        </thead>
+                        <tbody>
+                            ${students.map((s, i) => `
+                                <tr>
+                                    <td>${i+1}</td>
+                                    <td><strong>${s.name}</strong></td>
+                                    <td>${s.group}</td>
+                                    <td>${s.status}</td>
+                                    <td>
+                                        <button class="btn btn-success" onclick="setStatus(${s.id}, 'Kelgan')">✓ Kelgan</button>
+                                        <button class="btn btn-danger" onclick="setStatus(${s.id}, 'Kelmagan')">✗ Kelmagan</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (currentModule === '2') {
+                // Variant 2: Real-time Analytics View
+                container.innerHTML = `
+                    <h4>Davomat Ko'rsatkichi (Real-time Analytics)</h4>
+                    <p style="color:var(--text-muted); font-size:14px; margin-top:5px;">Umumiy qatnashish foizi: <strong>${percentage}%</strong></p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <table style="margin-top:25px;">
+                        <thead>
+                            <tr><th>F.I.Sh</th><th>Foiz ulushi</th><th>Tahliliy holat</th></tr>
+                        </thead>
+                        <tbody>
+                            ${students.map(s => `
+                                <tr>
+                                    <td>${s.name}</td>
+                                    <td>${s.status === 'Kelgan' ? '100%' : '0%'}</td>
+                                    <td><span style="color:${s.status==='Kelgan'?'var(--success)':'var(--danger)'}">${s.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (currentModule === '3') {
+                // Variant 3: Group Management View
+                container.innerHTML = `
+                    <h4>Guruhlar bo'yicha saralash va ma'lumotlar</h4>
+                    <table style="margin-top:15px;">
+                        <thead>
+                            <tr><th>Guruh</th><th>Talabalar soni</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>IT-101</td><td>2 ta talaba</td><td>Faol</td></tr>
+                            <tr><td>IT-102</td><td>1 ta talaba</td><td>Faol</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+
+        function setStatus(id, status) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                student.status = status;
+                renderModuleView();
+            }
+        }
+
+        function addStudent() {
+            const input = document.getElementById("stuInput");
+            if (input && input.value.trim() !== "") {
+                students.push({
+                    id: Date.now(),
+                    name: input.value.trim(),
+                    group: "IT-101",
+                    status: "Belgilanmagan"
+                });
+                renderModuleView();
+            }
+        }
+
+        renderModuleView();
+    </script>
+</body>
+</html>
